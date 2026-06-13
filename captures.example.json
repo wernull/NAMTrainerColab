@@ -1,0 +1,28 @@
+{
+  "drive_folder": "NAM",
+  "defaults": {
+    "modeled_by": "Your name",
+    "gear_make": "GearCo",
+    "gear_type": "amp",
+    "tone_type": "clean",
+    "epochs": 100,
+    "latency": "auto",
+    "ignore_checks": false,
+    "reamp_send_level": "",
+    "reamp_return_level": ""
+  },
+  "captures": [
+    {
+      "output": "output_be100_lead.wav",
+      "name": "BE100 Lead",
+      "gear_model": "BE100"
+    },
+    {
+      "output": "output_jcm800_clean.wav",
+      "name": "JCM800 Clean",
+      "gear_model": "JCM800",
+      "tone_type": "clean",
+      "epochs": 150
+    }
+  ]
+}
