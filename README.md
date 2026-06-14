@@ -1,7 +1,8 @@
 # NAMTrainerColab
 A nice, user-friendly NAM Trainer to be used on Google Colab — set up for **batch training**:
-upload `input.wav`, all of your reamped capture files, and a `captures.json` describing each one,
-then run a single cell to train every model and upload it straight to your Google Drive.
+put `input.wav`, all of your reamped capture files, and a `captures.json` describing each one in
+your Google Drive, then run a single cell to train every model and upload it straight back to
+Drive.
 
 [Open on Colab](https://colab.research.google.com/github/sdatkinson/NAMTrainerColab/blob/main/notebook.ipynb)
 
@@ -21,8 +22,17 @@ then run a single cell to train every model and upload it straight to your Googl
 4. **Create `captures.json`.** Copy [`captures.example.json`](captures.example.json) and fill it
    in — see [Manifest format](#manifest-format) below.
 
-5. **Upload everything** into the Colab file browser (the folder icon on the left): `input.wav`,
-   every `output_*.wav` file, and `captures.json`.
+5. **Get everything into Google Drive.** Create a folder named **`NAM_uploads`** at the top level
+   of `MyDrive`, and put `input.wav`, every `output_*.wav` file, and `captures.json` in it.
+
+   For a large batch, use the **Google Drive desktop app**: drop the files into the
+   locally-synced `NAM_uploads` folder and they'll upload in the background at your full internet
+   speed. Colab's browser upload widget is *much* slower for many large files (especially in
+   Firefox), so this avoids a long, fragile upload session.
+
+   *Quick one-off test:* you can instead upload these files directly into the Colab file browser
+   (folder icon on the left) at the `/content` root — the notebook falls back to that if
+   `MyDrive/NAM_uploads/captures.json` isn't found.
 
 6. **Run the single training cell.** The first time, you'll be asked to authorize Google Drive
    access — click through it. The notebook will then train a model for every entry in
@@ -73,3 +83,27 @@ Only `output`, `name`, and `gear_model` are required per capture — everything 
 `defaults`. See
 [the calibration docs](https://neural-amp-modeler.readthedocs.io/en/stable/tutorials/calibration.html)
 for more on `reamp_send_level` / `reamp_return_level`.
+
+## Troubleshooting
+
+### "No latency provided and cannot automatically analyze the latency"
+
+NAM finds the recording latency by looking for two calibration "blips" in `input.wav` (around
+0:10.5 and 0:11.5) and matching them against the corresponding blips in your reamped output. If
+your audio interface or reamping chain has an unusual delay, NAM's automatic detection can fail to
+find a clear match, and training fails with this error before it even starts.
+
+The notebook includes a **diagnostic cell** (in the Troubleshooting section of the notebook
+itself) that plots your `input.wav` and the first capture's output around the calibration blips,
+and reports the measured background noise level vs. the detection threshold. Run it (with your
+files either in `MyDrive/NAM_uploads` or uploaded to `/content`) to see whether the blips are
+visible and to estimate the correct latency in samples.
+
+Once you know the value, set it explicitly in `captures.json`'s `defaults` (or per-capture) to
+skip automatic detection:
+
+```jsonc
+"defaults": {
+  "latency": 240
+}
+```
